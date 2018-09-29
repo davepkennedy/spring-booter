@@ -18,10 +18,7 @@ import org.example.greeting.spring.SpringModel;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -56,7 +53,16 @@ public class SpringStarterTask extends DefaultTask {
         ZipInputStream zis = new ZipInputStream(response.getEntity().getContent());
         ZipEntry zipEntry = zis.getNextEntry();
         while (zipEntry != null) {
-          System.out.println(zipEntry.getName());
+          File newFile = new File (zipEntry.getName());
+          new File(newFile.getParent()).mkdirs();
+          FileOutputStream fos = new FileOutputStream(newFile);
+          int len;
+          byte[] buffer = new byte[1024];
+          while ((len = zis.read(buffer))>0) {
+            fos.write(buffer, 0, len);
+          }
+          fos.close();
+          zis.closeEntry();
           zipEntry = zis.getNextEntry();
         }
         return null;
